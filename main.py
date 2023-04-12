@@ -25,4 +25,12 @@ symbols = set(symbols)
 
 sample_text = "Hello world! Text to speech!"
 print(f"Original Text: {sample_text}")
-print(f"Encoded Text: {text_to_sequence(sample_text, symbol_table)}")
+print(f"Encoded Text: {text_to_sequence(sample_text, symbol_table)}\n")
+
+# Pretrained model: https://pytorch.org/audio/main/pipelines.html#id60
+processor = torchaudio.pipelines.TACOTRON2_WAVERNN_CHAR_LJSPEECH.get_text_processor()
+processed, lengths = processor(sample_text)
+
+print(f"Processed Text: {processed}")
+tokens = [processor.tokens[i] for i in processed[0, : lengths[0]]]
+print(f"Tokens: {tokens}")
