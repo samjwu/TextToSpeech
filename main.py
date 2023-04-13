@@ -3,6 +3,7 @@ Text to Speech
 """
 
 import matplotlib
+import matplotlib.pyplot
 import torch
 import torchaudio
 
@@ -29,17 +30,24 @@ print(f"Encoded Text: {text_to_sequence(sample_text, symbol_table)}\n")
 
 # Pretrained models: https://pytorch.org/audio/main/pipelines.html#id60
 
-# character encoding
-processor_wavernn_char = torchaudio.pipelines.TACOTRON2_WAVERNN_CHAR_LJSPEECH.get_text_processor()
+bundle_wavernn_char = torchaudio.pipelines.TACOTRON2_WAVERNN_CHAR_LJSPEECH
+processor_wavernn_char = bundle_wavernn_char.get_text_processor()
 processed_wavernn_char, lengths = processor_wavernn_char(sample_text)
 print(f"Character Encoding: {processed_wavernn_char}")
 tokens = [processor_wavernn_char.tokens[i] for i in processed_wavernn_char[0, : lengths[0]]]
 print(f"Tokens: {tokens}\n")
 
-# phoneme encoding
-processor_wavernn_phon = torchaudio.pipelines.TACOTRON2_WAVERNN_PHONE_LJSPEECH.get_text_processor()
+bundle_wavernn_phon = torchaudio.pipelines.TACOTRON2_WAVERNN_PHONE_LJSPEECH
+processor_wavernn_phon = bundle_wavernn_phon.get_text_processor()
 with torch.inference_mode():
     processed_wavernn_phon, lengths = processor_wavernn_phon(sample_text)
 print(f"Phoneme Encoding: {processed_wavernn_phon}")
-tokens = [processed_wavernn_phon.tokens[i] for i in processed_wavernn_phon[0, : lengths[0]]]
+tokens = [processor_wavernn_phon.tokens[i] for i in processed_wavernn_phon[0, : lengths[0]]]
 print(f"Tokens: {tokens}\n")
+
+tacotron2 = bundle_wavernn_phon.get_tacotron2().to(device)
+processed_wavernn_phon = processed_wavernn_phon.to(device)
+lengths = lengths.to(device)
+spectrogram, _, _ = tacotron2.infer(processed_wavernn_phon, lengths)
+_ = matplotlib.pyplot.imshow(spectrogram[0].cpu().detach(), origin="lower", aspect="auto")
+matplotlib.pyplot.show()
