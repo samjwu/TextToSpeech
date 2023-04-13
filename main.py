@@ -39,5 +39,7 @@ print(f"Tokens: {tokens}\n")
 # phoneme encoding
 processor_wavernn_phon = torchaudio.pipelines.TACOTRON2_WAVERNN_PHONE_LJSPEECH.get_text_processor()
 with torch.inference_mode():
-    processed_wavernn_phon, _ = processor_wavernn_phon(sample_text)
+    processed_wavernn_phon, lengths = processor_wavernn_phon(sample_text)
 print(f"Phoneme Encoding: {processed_wavernn_phon}")
+tokens = [processed_wavernn_phon.tokens[i] for i in processed_wavernn_phon[0, : lengths[0]]]
+print(f"Tokens: {tokens}\n")
