@@ -28,18 +28,29 @@ def phoneme_encoding(processor_wavernn_phon):
 
 def generate_spectrogram(processed_wavernn_phon, lengths, tacotron2):
     spectrogram, _, _ = tacotron2.infer(processed_wavernn_phon, lengths)
-    _ = matplotlib.pyplot.imshow(spectrogram[0].cpu().detach(), origin="lower", aspect="auto")
+    matplotlib.pyplot.imshow(spectrogram[0].cpu().detach(), origin="lower", aspect="auto")
     matplotlib.pyplot.show()
 
 def generate_spectrograms(processed_wavernn_phon, lengths, tacotron2, number):
-    figures, axes = matplotlib.pyplot.subplots(3, 1, figsize=(16, 4.3 * 3))
+    _, axes = matplotlib.pyplot.subplots(3, 1, figsize=(16, 4.3 * 3))
     for i in range(number):
         with torch.inference_mode():
-            spectrograms, spectrogram_lengths, _ = tacotron2.infer(processed_wavernn_phon, lengths)
+            spectrograms, _, _ = tacotron2.infer(processed_wavernn_phon, lengths)
         print(f"Spectrogram {i} shape: {spectrograms[0].shape}")
         axes[i].imshow(spectrograms[0].cpu().detach(), origin="lower", aspect="auto")
     matplotlib.pyplot.show()
 
+def generate_waveform(device, sample_text, processor_wavernn_phon, tacotron2, vocoder):
+    with torch.inference_mode():
+        processed_wavernn_phon, lengths = processor_wavernn_phon(sample_text)
+        processed_wavernn_phon = processed_wavernn_phon.to(device)
+        lengths = lengths.to(device)
+        spectrogram, spectrogram_lengths, _ = tacotron2.infer(processed_wavernn_phon, lengths)
+        waveforms, _ = vocoder(spectrogram, spectrogram_lengths)
+    _, [axes1, axes2] = matplotlib.pyplot.subplots(2, 1, figsize=(16, 9))
+    axes1.imshow(spectrogram[0].cpu().detach(), origin="lower", aspect="auto")
+    axes2.plot(waveforms[0].cpu().detach())
+    matplotlib.pyplot.show()
 
 if __name__ == "__main__":
     matplotlib.rcParams["figure.figsize"] = [16.0, 4.8]
@@ -73,3 +84,7 @@ if __name__ == "__main__":
     lengths = lengths.to(device)
     generate_spectrogram(processed_wavernn_phon, lengths, tacotron2)
     generate_spectrograms(processed_wavernn_phon, lengths, tacotron2, 3)
+
+    vocoder = bundle_wavernn_phon.get_vocoder().to(device)
+    generate_waveform(device, sample_text, processor_wavernn_phon, tacotron2, vocoder)
+    
