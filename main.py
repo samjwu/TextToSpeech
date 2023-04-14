@@ -51,3 +51,11 @@ lengths = lengths.to(device)
 spectrogram, _, _ = tacotron2.infer(processed_wavernn_phon, lengths)
 _ = matplotlib.pyplot.imshow(spectrogram[0].cpu().detach(), origin="lower", aspect="auto")
 matplotlib.pyplot.show()
+
+figures, axes = matplotlib.pyplot.subplots(3, 1, figsize=(16, 4.3 * 3))
+for i in range(3):
+    with torch.inference_mode():
+        spectrograms, spectrogram_lengths, _ = tacotron2.infer(processed_wavernn_phon, lengths)
+    print(spectrograms[0].shape)
+    axes[i].imshow(spectrograms[0].cpu().detach(), origin="lower", aspect="auto")
+matplotlib.pyplot.show()
