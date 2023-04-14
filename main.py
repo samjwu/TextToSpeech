@@ -27,20 +27,16 @@ def phoneme_encoding(processor_wavernn_phon):
     return (processed_wavernn_phon, lengths)
 
 def generate_spectrogram(processed_wavernn_phon, lengths, tacotron2):
-    processed_wavernn_phon = processed_wavernn_phon.to(device)
-    lengths = lengths.to(device)
     spectrogram, _, _ = tacotron2.infer(processed_wavernn_phon, lengths)
     _ = matplotlib.pyplot.imshow(spectrogram[0].cpu().detach(), origin="lower", aspect="auto")
     matplotlib.pyplot.show()
 
 def generate_spectrograms(processed_wavernn_phon, lengths, tacotron2, number):
-    processed_wavernn_phon = processed_wavernn_phon.to(device)
-    lengths = lengths.to(device)
     figures, axes = matplotlib.pyplot.subplots(3, 1, figsize=(16, 4.3 * 3))
     for i in range(number):
         with torch.inference_mode():
             spectrograms, spectrogram_lengths, _ = tacotron2.infer(processed_wavernn_phon, lengths)
-        print(spectrograms[0].shape)
+        print(f"Spectrogram {i} shape: {spectrograms[0].shape}")
         axes[i].imshow(spectrograms[0].cpu().detach(), origin="lower", aspect="auto")
     matplotlib.pyplot.show()
 
@@ -73,5 +69,7 @@ if __name__ == "__main__":
     (processed_wavernn_phon, lengths) = phoneme_encoding(processor_wavernn_phon)
 
     tacotron2 = bundle_wavernn_phon.get_tacotron2().to(device)
+    processed_wavernn_phon = processed_wavernn_phon.to(device)
+    lengths = lengths.to(device)
     generate_spectrogram(processed_wavernn_phon, lengths, tacotron2)
     generate_spectrograms(processed_wavernn_phon, lengths, tacotron2, 3)
