@@ -6,14 +6,6 @@ To install requirements, run the following commands:
 
 - `pip install -r requirements.txt`
 
-If on Windows:
-
-- `pip install soundfile`
-
-If on Linux or macOS:
-
-- `pip install sox_io`
-
 If GPU is [CUDA-enabled](https://developer.nvidia.com/cuda-gpus):
 
 - `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
