@@ -2,15 +2,25 @@
 
 ## Requirements
 
-The requirements.txt assumes that your GPU is [CUDA-enabled](https://developer.nvidia.com/cuda-gpus) and that you are on Windows.
+To install requirements, run the following commands:
 
-If your GPU is not CUDA-enabled, remove `+cu117` from the requirements.txt file before running the command below.
+- `pip install -r requirements.txt`
 
-If you are on Linux or macOS, remove the line with `soundfile` and run `pip install sox_io`.
+If on Windows:
 
-To install requirements, run the following command:
+- `pip install soundfile`
 
-`pip install -r requirements.txt`
+If on Linux or macOS:
+
+- `pip install sox_io`
+
+If GPU is [CUDA-enabled](https://developer.nvidia.com/cuda-gpus):
+
+- `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118`
+
+Else:
+
+- `pip install torch torchvision torchaudio`
 
 ## Usage
 
