@@ -76,15 +76,17 @@ def generate_waveform(device, sample_text: str, processor_wavernn_phon, tacotron
     matplotlib.pyplot.show()
 
 if __name__ == "__main__":
+    # init configs
     matplotlib.rcParams["figure.figsize"] = [16.0, 4.8]
-
     torch.random.manual_seed(0)
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    # check versions and device used
     print(f"torch version: {torch.__version__}")
     print(f"torchaudio version: {torchaudio.__version__}")
     print(f"device: {device}\n")
 
+    # prepare symbols used for encoding
     symbols = "_-!'(),.:;? abcdefghijklmnopqrstuvwxyz"
     symbol_table = {s: i for i, s in enumerate(symbols)}
     symbols = set(symbols)
@@ -94,20 +96,25 @@ if __name__ == "__main__":
     print(f"Encoded Text: {text_to_sequence(sample_text, symbol_table)}\n")
 
     # Pretrained models: https://pytorch.org/audio/main/pipelines.html#id60
+
+    # character encoding
     bundle_wavernn_char = torchaudio.pipelines.TACOTRON2_WAVERNN_CHAR_LJSPEECH
     processor_wavernn_char = bundle_wavernn_char.get_text_processor()
     character_encoding(processor_wavernn_char, sample_text)
 
+    # phoneme encoding
     bundle_wavernn_phon = torchaudio.pipelines.TACOTRON2_WAVERNN_PHONE_LJSPEECH
     processor_wavernn_phon = bundle_wavernn_phon.get_text_processor()
     (processed_wavernn_phon, lengths) = phoneme_encoding(processor_wavernn_phon, sample_text)
 
+    # spectrograms
     tacotron2_wavernn = bundle_wavernn_phon.get_tacotron2().to(device)
     processed_wavernn_phon = processed_wavernn_phon.to(device)
     lengths = lengths.to(device)
     generate_spectrogram(processed_wavernn_phon, lengths, tacotron2_wavernn)
     generate_spectrograms(processed_wavernn_phon, lengths, tacotron2_wavernn, 3)
 
+    # waveforms
     vocoder_wavernn = bundle_wavernn_phon.get_vocoder().to(device)
     generate_waveform(device, sample_text, processor_wavernn_phon, tacotron2_wavernn, vocoder_wavernn)
     
