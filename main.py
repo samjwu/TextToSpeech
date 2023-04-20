@@ -79,12 +79,18 @@ if __name__ == "__main__":
     processor_wavernn_phon = bundle_wavernn_phon.get_text_processor()
     (processed_wavernn_phon, lengths) = phoneme_encoding(processor_wavernn_phon)
 
-    tacotron2 = bundle_wavernn_phon.get_tacotron2().to(device)
+    tacotron2_wavernn = bundle_wavernn_phon.get_tacotron2().to(device)
     processed_wavernn_phon = processed_wavernn_phon.to(device)
     lengths = lengths.to(device)
-    generate_spectrogram(processed_wavernn_phon, lengths, tacotron2)
-    generate_spectrograms(processed_wavernn_phon, lengths, tacotron2, 3)
+    generate_spectrogram(processed_wavernn_phon, lengths, tacotron2_wavernn)
+    generate_spectrograms(processed_wavernn_phon, lengths, tacotron2_wavernn, 3)
 
-    vocoder = bundle_wavernn_phon.get_vocoder().to(device)
-    generate_waveform(device, sample_text, processor_wavernn_phon, tacotron2, vocoder)
+    vocoder_wavernn = bundle_wavernn_phon.get_vocoder().to(device)
+    generate_waveform(device, sample_text, processor_wavernn_phon, tacotron2_wavernn, vocoder_wavernn)
+    
+    bundle_griffinlim = torchaudio.pipelines.TACOTRON2_GRIFFINLIM_PHONE_LJSPEECH
+    processor_griffinlim = bundle_griffinlim.get_text_processor()
+    tacotron2_griffinlim = bundle_griffinlim.get_tacotron2().to(device)
+    vocoder_griffinlim = bundle_griffinlim.get_vocoder().to(device)
+    generate_waveform(device, sample_text, processor_griffinlim, tacotron2_griffinlim, vocoder_griffinlim)
     
