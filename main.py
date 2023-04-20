@@ -10,19 +10,25 @@ import torchaudio
 
 def text_to_sequence(text: str, symbol_table: dict[str, int]):
     """
-    Map characters in a given string to characters in a table
+    Map characters in a given string to characters in a table.
     """
     text = text.lower()
     return [symbol_table[s] for s in text if s in symbols]
 
-def character_encoding(processor_wavernn_char, sample_text):
+def character_encoding(processor_wavernn_char, sample_text: str):
+    """
+    Convert a given string to an encoded string using character-based WaveRNN text processor.
+    """
     processed_wavernn_char, lengths = processor_wavernn_char(sample_text)
     print(f"Character Encoding: {processed_wavernn_char}")
     tokens = [processor_wavernn_char.tokens[i] for i in processed_wavernn_char[0, : lengths[0]]]
     print(f"Tokens: {tokens}\n")
     return (processed_wavernn_char, lengths)
 
-def phoneme_encoding(processor_wavernn_phon, sample_text):
+def phoneme_encoding(processor_wavernn_phon, sample_text: str):
+    """
+    Convert a given string to an encoded string using phoneme-based WaveRNN text processor.
+    """
     with torch.inference_mode():
         processed_wavernn_phon, lengths = processor_wavernn_phon(sample_text)
     print(f"Phoneme Encoding: {processed_wavernn_phon}")
@@ -31,11 +37,19 @@ def phoneme_encoding(processor_wavernn_phon, sample_text):
     return (processed_wavernn_phon, lengths)
 
 def generate_spectrogram(processed_wavernn_phon, lengths, tacotron2):
+    """
+    Generate spectrogram from encoded text.
+    Visual representation of frequency against time.
+    """
     spectrogram, _, _ = tacotron2.infer(processed_wavernn_phon, lengths)
     matplotlib.pyplot.imshow(spectrogram[0].cpu().detach(), origin="lower", aspect="auto")
     matplotlib.pyplot.show()
 
 def generate_spectrograms(processed_wavernn_phon, lengths, tacotron2, number):
+    """
+    Generate a given number of spectrograms from encoded text.
+    Due to use of multinomial sampling, generated spectrograms are random and have slight variations.
+    """
     _, axes = matplotlib.pyplot.subplots(3, 1, figsize=(16, 4.3 * 3))
     for i in range(number):
         with torch.inference_mode():
@@ -44,7 +58,12 @@ def generate_spectrograms(processed_wavernn_phon, lengths, tacotron2, number):
         axes[i].imshow(spectrograms[0].cpu().detach(), origin="lower", aspect="auto")
     matplotlib.pyplot.show()
 
-def generate_waveform(device, sample_text, processor_wavernn_phon, tacotron2, vocoder):
+def generate_waveform(device, sample_text: str, processor_wavernn_phon, tacotron2, vocoder):
+    """
+    Encode a given string and then generate a spectrogram from the encoded text.
+    Then convert the spectrogram into a waveform.
+    Visual representation of amplitude or shape against time.
+    """
     with torch.inference_mode():
         processed_wavernn_phon, lengths = processor_wavernn_phon(sample_text)
         processed_wavernn_phon = processed_wavernn_phon.to(device)
