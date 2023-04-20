@@ -9,17 +9,20 @@ import torch
 import torchaudio
 
 def text_to_sequence(text: str, symbol_table: dict[str, int]):
+    """
+    Map characters in a given string to characters in a table
+    """
     text = text.lower()
     return [symbol_table[s] for s in text if s in symbols]
 
-def character_encoding(processor_wavernn_char):
+def character_encoding(processor_wavernn_char, sample_text):
     processed_wavernn_char, lengths = processor_wavernn_char(sample_text)
     print(f"Character Encoding: {processed_wavernn_char}")
     tokens = [processor_wavernn_char.tokens[i] for i in processed_wavernn_char[0, : lengths[0]]]
     print(f"Tokens: {tokens}\n")
     return (processed_wavernn_char, lengths)
 
-def phoneme_encoding(processor_wavernn_phon):
+def phoneme_encoding(processor_wavernn_phon, sample_text):
     with torch.inference_mode():
         processed_wavernn_phon, lengths = processor_wavernn_phon(sample_text)
     print(f"Phoneme Encoding: {processed_wavernn_phon}")
@@ -74,11 +77,11 @@ if __name__ == "__main__":
     # Pretrained models: https://pytorch.org/audio/main/pipelines.html#id60
     bundle_wavernn_char = torchaudio.pipelines.TACOTRON2_WAVERNN_CHAR_LJSPEECH
     processor_wavernn_char = bundle_wavernn_char.get_text_processor()
-    character_encoding(processor_wavernn_char)
+    character_encoding(processor_wavernn_char, sample_text)
 
     bundle_wavernn_phon = torchaudio.pipelines.TACOTRON2_WAVERNN_PHONE_LJSPEECH
     processor_wavernn_phon = bundle_wavernn_phon.get_text_processor()
-    (processed_wavernn_phon, lengths) = phoneme_encoding(processor_wavernn_phon)
+    (processed_wavernn_phon, lengths) = phoneme_encoding(processor_wavernn_phon, sample_text)
 
     tacotron2_wavernn = bundle_wavernn_phon.get_tacotron2().to(device)
     processed_wavernn_phon = processed_wavernn_phon.to(device)
