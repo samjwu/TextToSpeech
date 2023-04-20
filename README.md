@@ -1,5 +1,9 @@
 # Text Visualizer
 
+Visualizes text.
+
+Generates spectrograms and waveforms from text.
+
 ## Requirements
 
 To install requirements, run the following commands:
