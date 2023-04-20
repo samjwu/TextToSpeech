@@ -1,5 +1,6 @@
 """
-Text to Speech
+Visualizes text.
+Generates spectrograms and waveforms from text.
 """
 
 import matplotlib
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     symbol_table = {s: i for i, s in enumerate(symbols)}
     symbols = set(symbols)
 
-    sample_text = "TextToSpeech example: Hello World"
+    sample_text = "Hello World"
     print(f"Original Text: {sample_text}")
     print(f"Encoded Text: {text_to_sequence(sample_text, symbol_table)}\n")
 
