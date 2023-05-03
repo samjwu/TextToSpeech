@@ -4,6 +4,8 @@ Visualizes text.
 
 Generates spectrograms and waveforms from text.
 
+![Visualizer](visualizer.PNG)
+
 ## Requirements
 
 To install requirements, run the following commands:
